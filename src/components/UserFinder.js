@@ -2,6 +2,7 @@ import { Fragment, useState, useEffect, Component } from 'react';
 import Users from './Users';
 import classes from './UserFinder.module.css';
 import UsersContext from '../store/users-context';
+import ErrorBoundary from './ErrorBoundary';
 
 class UserFinder extends Component {
     static contextType = UsersContext;
@@ -17,6 +18,9 @@ class UserFinder extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.searchTerm === this.state.searchTerm) return;
+
+        if (this.props.users.length === 0)
+            throw new Error('No users provided!');
 
         this.setState({
             filteredUsers: this.context.users.filter(user =>
@@ -38,7 +42,9 @@ class UserFinder extends Component {
                         onChange={this.searchChangeHandler.bind(this)}
                     />
                 </div>
-                <Users users={this.state.filteredUsers} />
+                <ErrorBoundary>
+                    <Users users={this.state.filteredUsers} />
+                </ErrorBoundary>
             </Fragment>
         );
     }
